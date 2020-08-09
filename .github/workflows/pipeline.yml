@@ -28,7 +28,9 @@ jobs:
         run: yarn run build
 
       - name: Run tests
-        run: yarn run test
+        uses: GabrielBB/xvfb-action@v1.2
+        with:
+          run: yarn run test
 
   lint:
     name: Lint
