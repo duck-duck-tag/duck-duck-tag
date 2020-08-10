@@ -38,14 +38,15 @@ const Setup = (props) => {
     const sendImages = () => {
         setAnimation('processing')
         // Construct queries from configurations of selected services
-        const queriesBasedOnConf = Object.keys(servicesToSend)
-            .filter(s => servicesToSend[s])
+        const queriesBasedOnConf = servicesToSend
             .map(service => props.configuration[service])
             .map(configuration => pathListing
                 .filter(path => path.selected)
                 .map(path => createQuery(configuration, path)))
             .flat()
+
         const promises = queriesBasedOnConf.map(q => tagImage(q))
+        
         Promise.all(promises).then((values: Array<Tag>) => {
             const result = values.flat() // values is a nested array: each service is it's own array
             setAnimation('')
@@ -56,7 +57,8 @@ const Setup = (props) => {
     }
 
     const handleAnalyzeClick = () => {
-        const serviceArray = Object.keys(servicesToSend).filter(s => servicesToSend[s]).map(s => ` ${s}`)
+        const serviceArray = servicesToSend
+
         if (serviceArray.length < 1) {
             alert("Add at least one service")
 
@@ -114,7 +116,7 @@ const Setup = (props) => {
     const handleSelection = (name: string) => {
 
         const changedServiceSet = servicesToSend.includes(name) ? servicesToSend.filter(s => s !== name) : servicesToSend.concat(name)
-        
+
         setServicesToSend( changedServiceSet )
     }
 
