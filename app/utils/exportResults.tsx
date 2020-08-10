@@ -24,9 +24,8 @@ const sendResultsToMainForWritingToSQLite = (result,filename) => {
 }
 
 
-const makeRowForCSV = result => {
-    const ts = new Date()
-    return [result.id, result.service, result.label, result.accuracy,  result.type, result.path, ts].join(';').concat('\n')
+const makeRowForCSV = result => { 
+    return [result.id, result.service, result.label, result.accuracy,  result.type, result.path, result.time].join(';').concat('\n')
 }
 
 const createJSON = result => {

@@ -33,6 +33,9 @@ class ServiceConfiguration {
         return this.name
     }
 
+    getTimestamp = () => {
+        return new Date().toISOString().split('T').join(' ') // Formatted to eg. "2020-08-10 14:30:45.399Z"
+    }
 
 }
 
@@ -78,7 +81,8 @@ class AzureConfig extends ServiceConfiguration {
                 service: this.name,
                 label: tag.name.toLowerCase(),
                 accuracy: tag.confidence,
-                id: getId()
+                id: getId(),
+                time: this.getTimestamp()
             }
         )
 
@@ -148,7 +152,8 @@ class IBMconfig extends ServiceConfiguration {
                 service: this.name,
                 label: tag.class.toLowerCase(),
                 accuracy: tag.score,
-                id: getId()
+                id: getId(),
+                time: this.getTimestamp()
             }
         )
         
