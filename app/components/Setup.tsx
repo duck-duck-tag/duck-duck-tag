@@ -25,13 +25,14 @@ const Setup = (props) => {
         setServicesToSend( services.map(service => service.name) )
     }, [])
 
-    const handleJobChange = (services, result) => {
-        const serviceNames = Object.keys(services).filter(key => services[key])
+    const handleJobChange = (servicesInJob, result) => {
+        
         const newJob = {
             sessionJobID: job.sessionJobID + 1,
-            services: serviceNames,
+            services: servicesInJob,
             result: result
         }
+        
         setJob(newJob)
     }
 

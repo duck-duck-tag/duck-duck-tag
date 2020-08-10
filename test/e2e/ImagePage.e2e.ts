@@ -14,6 +14,7 @@ const chooseAllServices = async t => {
   const count = await serviceSelectors.count;
 
   // Choose all services that are available
+  // (note: this deselects services if they are selected)
   for (let i = 0; i < count; i++) {
     await t.click(serviceSelectors.nth(i));
   }
@@ -56,7 +57,6 @@ test('should display animation while analysis is pending', async t => {
 */
 
 test('should display no animation after analysis is done', async t => {
-  await chooseAllServices(t)
 
   await t
     .setNativeDialogHandler(() => true)
@@ -74,12 +74,11 @@ fixture`Analyze image tests`
 
 test('tag images', async t => {
 
-  await chooseAllServices(t)
 
   await t
     .setNativeDialogHandler(() => true)                         // Return true for (any) confirmation
     .click(Selector('button').withExactText('Analyze images'))  // Click Analyze
-    .expect(Selector('td').withText('Azure').count).gte(1)      // Azure mentioned in a table cell at least once
+    .expect(Selector('td').withText('Azure').count).gte(1)     // Azure mentioned in a table cell at least once
     .expect(Selector('td').withText('IBM').count).gte(1)        // IBM mentioned in a table cell at least once
     .expect(Selector('table').count).eql(3)                     // We expect to see three tables: one for imagepaths, one for tags and one for analysis
 
@@ -95,9 +94,6 @@ fixture`Export tests`
 const testExportToFormat = format => {
 
   test('Export to ' + format, async t => {
-
-
-    await chooseAllServices(t)
 
     await t
       .setNativeDialogHandler(() => true)                             // Return true for (any) confirmation
