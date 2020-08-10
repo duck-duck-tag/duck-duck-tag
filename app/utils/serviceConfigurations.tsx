@@ -11,16 +11,21 @@ class ServiceConfiguration {
     API_URL_QUERY: string
     API_URL_BASE: string
     API_ENDPOINT: string
+    API_INSTANCE: string
     API_KEY: string
 
     imgPath: Path
 
     constructor(configuration,path) {
         this.name = configuration.name
-        this.API_URL_QUERY = configuration.API_URL_QUERY
-        this.API_URL_BASE = configuration.API_URL_BASE
-        this.API_ENDPOINT = configuration.API_ENDPOINT
-        this.API_KEY = configuration.API_KEY
+
+        // Store all options as properties of "this"
+        // Options are referenced like this: THIS.API_KEY
+        configuration.options.forEach(opt => {
+            this[opt.name] = opt.value
+         })
+
+        
         this.imgPath = path
     }
 
@@ -130,7 +135,7 @@ class IBMconfig extends ServiceConfiguration {
 
     getURL = () => {
         if (this.imgPath.type === 'url' || this.imgPath.type === 'localPath') {
-            return (this.API_ENDPOINT.match(/^http/) ? '' : this.API_URL_BASE) + this.API_ENDPOINT + this.API_URL_QUERY
+            return (this.API_INSTANCE.match(/^http/) ? '' : this.API_URL_BASE) + this.API_INSTANCE + this.API_URL_QUERY
         }
     }
 

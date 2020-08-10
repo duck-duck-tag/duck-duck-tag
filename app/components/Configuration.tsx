@@ -24,6 +24,9 @@ const Configuration = ( props: Props ) => {
         return ''
     }
 
+
+
+
     const addConfiguration = props.addConfiguration
 
     const configuration = props.configuration[SERVICE]
@@ -31,14 +34,15 @@ const Configuration = ( props: Props ) => {
    
 
     const handleConfigChange = (e,which) => {
-        let alteredConfig
-        if (configuration) {
-            alteredConfig = { ...configuration }
-            alteredConfig[which] = e.target.value ? e.target.value : ''
-        } else {
-            alteredConfig = { name: SERVICE }
-            alteredConfig[which] = e.target.value ? e.target.value : ''
-        }
+
+        let alteredConfig = { ...configuration }
+
+        alteredConfig.options = alteredConfig.options.map( opt => {
+            opt.value = opt.name === which.name ?  e.target.value : opt.value
+            return opt
+        })
+        
+
         addConfiguration(alteredConfig)
     }
 
@@ -65,38 +69,37 @@ const Configuration = ( props: Props ) => {
                     return <button key={service.name} className={style}  onClick={() => setSERVICE(service.name)}>{ service.name }</button>
                 })
             }
-            <h5>Base URL:</h5>
-            <input placeholder='Base URL'  onChange={(e) => handleConfigChange(e,'API_URL_BASE')} type='text' ></input>
-            <br></br>
-            <h5>URL query (added to the end of URL):</h5>
-            <input placeholder='URL query'  onChange={(e) => handleConfigChange(e,'API_URL_QUERY')} type='text' ></input>
-            
-            <br></br>
-            <h5>API-key:</h5>
-            <input placeholder='API-key'    onChange={(e) => handleConfigChange(e,'API_KEY')} type='password' ></input>
-            <br></br>
-            <h5>API-endpoint:</h5>
-            <input placeholder='API-endpoint'  onChange={(e) => handleConfigChange(e,'API_ENDPOINT')} type='text' ></input>
-            <br></br>           
+            {
+
+                configuration ?  configuration.options.map(opt => {
+
+                        return (
+                            <div key={SERVICE+opt.name}>
+                                  <h5>{opt.displayName}</h5>
+                                <input placeholder={opt.displayName}  onChange={(e) => handleConfigChange(e,opt)} type='text' ></input>
+                            </div>
+                        )
+
+                    }) : ''
+            }
             <div>
                 Current config for {SERVICE}:
                 <ul>
-                    <li>
-                        Base URL: { configuration ? configuration.API_URL_BASE : '-' }
-                    </li>
-                    <li>
-                        URL query: { configuration ? configuration.API_URL_QUERY : '-' }
-                    </li>
-                    <li>
-                        API-key: { configuration ? displaySecret(configuration.API_KEY): '-' }
-                    </li>
-                    <li>
-                        API-endpoint: { configuration ? configuration.API_ENDPOINT : '-' }
-                    </li>
+                    {
+                        configuration  ? configuration.options.map(opt => {
+                            return(
+                                <li key={SERVICE+opt.name}>
+                                    {opt.displayName}: { opt.secret ? displaySecret(opt.value) : opt.value }
+                                </li>
+                            )
+
+
+                        }) : ''
+                    }
                 </ul>
             </div>
         </div>
-        
+           
     )
 }
 

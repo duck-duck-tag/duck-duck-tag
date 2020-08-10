@@ -1,14 +1,23 @@
 [
-    { "name": "Azure"
-        , "API_URL_QUERY": "/vision/v2.1/analyze?visualFeatures=Tags&language=en"
-        , "API_URL_BASE": ""
-        , "API_ENDPOINT": "http://localhost:3001/tag/azure"
+    {  "name": "Azure",
+        "options": [
+            {  "name": "API_ENDPOINT" , "displayName": "API-endpoint",   "value": "http://localhost:3001/tag/azure" }
+            ,{ "name": "API_URL_QUERY", "displayName": "URL-query",  "value": "/vision/v2.1/analyze?visualFeatures=Tags&language=en" }
+            ,{ "name": "API_KEY", "displayName": "API-Key", "value": "", "secret": true }
+            
+        ]
     },
     { 
-        "name": "IBM"
-        , "API_URL_QUERY": "/v3/classify?version=2018-03-19"
-        , "API_URL_BASE": "https://api.eu-de.visual-recognition.watson.cloud.ibm.com/instances/"
-        , "API_ENDPOINT": "http://localhost:3001/tag/ibm"
+        "name": "IBM",
+        "options": [
+            { "name": "API_INSTANCE",   "displayName": "Instance"     , "value": "http://localhost:3001/tag/ibm" }
+            ,{ "name": "API_URL_QUERY", "displayName": "URL-query"    , "value": "/v3/classify?version=2018-03-19" }
+            ,{ "name": "API_URL_BASE",  "displayName": "Base-url"     , "value": "https://api.eu-de.visual-recognition.watson.cloud.ibm.com/instances/" }
+            ,{ "name": "API_KEY", "displayName": "API-Key", "value": "", "secret": true }
+           
+       ]
+
+
     }
 ] 
 
