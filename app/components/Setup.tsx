@@ -17,14 +17,12 @@ const Setup = (props) => {
     const pathListing = props.pathListing
     const setPathListing = props.setPathListing
 
-    const [servicesToSend, setServicesToSend] = useState({})
+    const [servicesToSend, setServicesToSend] = useState([])
     const [imageURL, setImageURL] = useState('https://picsum.photos/id/256/200/200.jpg')
     const [showDeleteAllChoice, setShowDeleteAllChoice] = useState(false)
 
     useEffect(() => {
-        const initialServices = {}
-        services.forEach((service: object) => initialServices[service.name] = 0)
-        setServicesToSend(initialServices)
+        setServicesToSend( services.map(service => service.name) )
     }, [])
 
     const handleJobChange = (services, result) => {
@@ -114,9 +112,10 @@ const Setup = (props) => {
     }
 
     const handleSelection = (name: string) => {
-        const changedService = { ...servicesToSend }
-        changedService[name] = servicesToSend[name] === 1 ? 0 : 1
-        setServicesToSend(changedService)
+
+        const changedServiceSet = servicesToSend.includes(name) ? servicesToSend.filter(s => s !== name) : servicesToSend.concat(name)
+        
+        setServicesToSend( changedServiceSet )
     }
 
     const handleImageSelection = (path: string) => {
@@ -165,7 +164,7 @@ const Setup = (props) => {
                             return (
                                 <div key={service.name}>
                                     <label >{service.name}</label>
-                                    <input className='isSelected' type='checkbox' onChange={() => handleSelection(service.name)} />
+                                    <input className='isSelected' checked={servicesToSend.includes(service.name)}  type='checkbox' onChange={() => handleSelection(service.name)} />
                                 </div>
                             )
                         })
