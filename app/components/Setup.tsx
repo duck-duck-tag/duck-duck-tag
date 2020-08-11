@@ -6,8 +6,7 @@ import styles from './Image.css';
 import { Tag } from '../types'
 import services from '../constants/services.json'
 import createQuery from '../utils/serviceConfigurations'
-import downloadImage from '../utils/downloadImage'
-import zipFiles from '../utils/zipFiles'
+import downloadAndZipPaths from '../utils/downloadAndZipPaths'
 import tagImage from '../utils/tagImage';
 import { remote } from 'electron'
 
@@ -69,26 +68,9 @@ const Setup = (props) => {
             const animationText = 'downloading images'
             setAnimation( animation.concat(animationText) )
 
-            const files = []
+            downloadAndZipPaths(pathListing,job.sessionJobID,() => setAnimation( animation.filter(a => a !== animationText) ))
 
-            const downloads = pathListing.filter(path => path.type==='url').map(path => {
-
-                let imagefilename = path.path.match(/\/[^/]+$/)
-
-                if (!imagefilename) {
-                    console.log('what is the filename of image?')
-                }
             
-                imagefilename = `./downloaded-images/${job.sessionJobID}_${imagefilename[0].replace('/','')}`
-            
-                files.push(imagefilename)
-                return downloadImage(path.path, imagefilename)
-            })
-
-            Promise.all(downloads).then(d => {
-               setAnimation( animation.filter(a => a !== animationText) )
-               zipFiles(files,job.sessionJobID,'./downloaded-images')
-            })
 
         })
 
