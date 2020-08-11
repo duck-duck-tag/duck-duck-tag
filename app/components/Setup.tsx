@@ -17,37 +17,37 @@ const Setup = (props) => {
     const pathListing = props.pathListing
     const setPathListing = props.setPathListing
 
-    const [servicesToSend, setServicesToSend] = useState({})
+    const [servicesToSend, setServicesToSend] = useState([])
     const [imageURL, setImageURL] = useState('https://picsum.photos/id/256/200/200.jpg')
     const [showDeleteAllChoice, setShowDeleteAllChoice] = useState(false)
 
     useEffect(() => {
-        const initialServices = {}
-        services.forEach((service: object) => initialServices[service.name] = 0)
-        setServicesToSend(initialServices)
+        setServicesToSend( services.map(service => service.name) )
     }, [])
 
-    const handleJobChange = (services, result) => {
-        const serviceNames = Object.keys(services).filter(key => services[key])
+    const handleJobChange = (servicesInJob, result) => {
+        
         const newJob = {
             sessionJobID: job.sessionJobID + 1,
-            services: serviceNames,
+            services: servicesInJob,
             result: result
         }
+        
         setJob(newJob)
     }
 
     const sendImages = () => {
         setAnimation('processing')
         // Construct queries from configurations of selected services
-        const queriesBasedOnConf = Object.keys(servicesToSend)
-            .filter(s => servicesToSend[s])
+        const queriesBasedOnConf = servicesToSend
             .map(service => props.configuration[service])
             .map(configuration => pathListing
                 .filter(path => path.selected)
                 .map(path => createQuery(configuration, path)))
             .flat()
+
         const promises = queriesBasedOnConf.map(q => tagImage(q))
+        
         Promise.all(promises).then((values: Array<Tag>) => {
             const result = values.flat() // values is a nested array: each service is it's own array
             setAnimation('')
@@ -58,7 +58,8 @@ const Setup = (props) => {
     }
 
     const handleAnalyzeClick = () => {
-        const serviceArray = Object.keys(servicesToSend).filter(s => servicesToSend[s]).map(s => ` ${s}`)
+        const serviceArray = servicesToSend
+
         if (serviceArray.length < 1) {
             alert("Add at least one service")
 
@@ -114,9 +115,10 @@ const Setup = (props) => {
     }
 
     const handleSelection = (name: string) => {
-        const changedService = { ...servicesToSend }
-        changedService[name] = servicesToSend[name] === 1 ? 0 : 1
-        setServicesToSend(changedService)
+
+        const changedServiceSet = servicesToSend.includes(name) ? servicesToSend.filter(s => s !== name) : servicesToSend.concat(name)
+
+        setServicesToSend( changedServiceSet )
     }
 
     const handleImageSelection = (path: string) => {
@@ -165,7 +167,7 @@ const Setup = (props) => {
                             return (
                                 <div key={service.name}>
                                     <label >{service.name}</label>
-                                    <input className='isSelected' type='checkbox' onChange={() => handleSelection(service.name)} />
+                                    <input className='isSelected' checked={servicesToSend.includes(service.name)}  type='checkbox' onChange={() => handleSelection(service.name)} />
                                 </div>
                             )
                         })
