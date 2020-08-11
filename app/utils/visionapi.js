@@ -4,15 +4,19 @@ const jwt = require('jsonwebtoken')
 const querystring = require('querystring')
 
 
+const getFile = (path) => {
+        return fs.readFileSync(path)
+    }
+
 
 const postaa = () => {
 
     // directly send a signed JWT to vision api: https://developers.google.com/identity/protocols/oauth2/service-account#jwt-auth
-    // (substitute privateKey, kid, iss and sub with actual credentials)
+    // (substitute privateKey and mail with actual credentials)
 
     const privateKey = fs.readFileSync('privakey.txt')
     
-    const mail = "" // "client_email" from servicecredidentials
+    const mail = "client-email" // "client_email" from servicecredidentials
     
     const iat = Math.floor(Date.now() / 1000)
     const exp = iat + 3600
@@ -34,17 +38,27 @@ const postaa = () => {
     )
 
 
-    
+    // https://cloud.google.com/vision/docs/request#providing_the_image
+    const localImage = Buffer.from(getFile('fruitbowl.jpg'), 'binary').toString('base64')
+
+
+
+    // 2 eri sisältöä bodyyn: lokaali ja url
+
+    // const image = {
+    //     content: localImage
+    // }
+
+    const image = {
+        source: {
+            imageUri: "https://watson-developer-cloud.github.io/doc-tutorial-downloads/visual-recognition/fruitbowl.jpg"
+        }
+    }
 
     const body = {
         requests: [
             {
-                image: {
-                    source: {
-                        imageUri: "https://watson-developer-cloud.github.io/doc-tutorial-downloads/visual-recognition/fruitbowl.jpg"
-                    }
-                },
-                
+                image: image,
                 features: [
                     {
                         type: "LABEL_DETECTION",
@@ -61,7 +75,6 @@ const postaa = () => {
         'Content-Type': 'application/json'
     }
 
-  
     
     let URL = 'https://vision.googleapis.com/v1/images:annotate'
    
