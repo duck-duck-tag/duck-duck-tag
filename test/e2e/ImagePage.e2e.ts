@@ -13,10 +13,19 @@ const chooseAllServices = async t => {
   const serviceSelectors = Selector('.isSelected');
   const count = await serviceSelectors.count;
 
+  
+
   // Choose all services that are available
-  // (note: this deselects services if they are selected)
+
+  let checkbox
   for (let i = 0; i < count; i++) {
-    await t.click(serviceSelectors.nth(i));
+
+    checkbox = serviceSelectors.nth(i)
+    
+    if (  !(await checkbox.checked) ) { // Click only if checkbox is not checked. Does not uncheck checkboxes
+      await t.click(checkbox);
+    }
+    
   }
 }
 
@@ -74,6 +83,7 @@ fixture`Analyze image tests`
 
 test('tag images', async t => {
 
+  await chooseAllServices(t)
 
   await t
     .setNativeDialogHandler(() => true)                         // Return true for (any) confirmation
@@ -94,6 +104,8 @@ fixture`Export tests`
 const testExportToFormat = format => {
 
   test('Export to ' + format, async t => {
+
+    await chooseAllServices(t)
 
     await t
       .setNativeDialogHandler(() => true)                             // Return true for (any) confirmation
