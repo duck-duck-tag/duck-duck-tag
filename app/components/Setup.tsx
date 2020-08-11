@@ -6,12 +6,17 @@ import styles from './Image.css';
 import { Tag } from '../types'
 import services from '../constants/services.json'
 import createQuery from '../utils/serviceConfigurations'
+import downloadImage from '../utils/downloadImage'
+import zipFiles from '../utils/zipFiles'
 import tagImage from '../utils/tagImage';
 import { remote } from 'electron'
+
+
 
 const Setup = (props) => {
 
     const setAnimation = props.setAnimation
+    const animation   = props.animation
     const job = props.job
     const setJob = props.setJob
     const pathListing = props.pathListing
@@ -34,10 +39,15 @@ const Setup = (props) => {
         }
         
         setJob(newJob)
+
+        return newJob
     }
 
     const sendImages = () => {
-        setAnimation('processing')
+
+        const animationText = 'sending images for analysis'
+
+        setAnimation( animation.concat(animationText) )
         // Construct queries from configurations of selected services
         const queriesBasedOnConf = servicesToSend
             .map(service => props.configuration[service])
@@ -50,11 +60,39 @@ const Setup = (props) => {
         
         Promise.all(promises).then((values: Array<Tag>) => {
             const result = values.flat() // values is a nested array: each service is it's own array
-            setAnimation('')
+            setAnimation( animation.filter(a => a !== animationText) )
             console.log(result)
             const sortedResult = result.sort((result1, result2) => (result1.accuracy > result2.accuracy) ? -1 : 1)
-            handleJobChange(servicesToSend, sortedResult)
+            return handleJobChange(servicesToSend, sortedResult)
+        }).then(job => {
+            
+            const animationText = 'downloading images'
+            setAnimation( animation.concat(animationText) )
+
+            const files = []
+
+            const downloads = pathListing.filter(path => path.type==='url').map(path => {
+
+                let imagefilename = path.path.match(/\/[^/]+$/)
+
+                if (!imagefilename) {
+                    console.log('what is the filename of image?')
+                }
+            
+                imagefilename = `./downloaded-images/${job.sessionJobID}_${imagefilename[0].replace('/','')}`
+            
+                files.push(imagefilename)
+                return downloadImage(path.path, imagefilename)
+            })
+
+            Promise.all(downloads).then(d => {
+               setAnimation( animation.filter(a => a !== animationText) )
+               zipFiles(files,job.sessionJobID,'./downloaded-images')
+            })
+
         })
+
+        
     }
 
     const handleAnalyzeClick = () => {

@@ -15,7 +15,7 @@ const Result = ({ job, animation }) => {
             <Export job={job}></Export>
             <br></br>
             <div>
-                <p>{animation}</p>
+                {animation}
             </div>
             <Results job={job} />
             <br></br>

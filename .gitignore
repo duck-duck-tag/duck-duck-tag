@@ -8,3 +8,4 @@ export.*
 .eslintcache
 dll/
 yarn-error.log
+downloaded-images

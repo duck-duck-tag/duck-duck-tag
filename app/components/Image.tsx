@@ -8,7 +8,7 @@ import Setup  from './Setup'
 
 const Image = (props) => {
 
-    const [animation, setAnimation] = useState('')
+    const [animation, setAnimation] = useState([])
   
     // Redux state
     const job = props.job
@@ -17,6 +17,11 @@ const Image = (props) => {
     const pathListing = props.pathListing
     const setPathListing = props.setPathListing
 
+
+    const makeAnimations = animations => {
+        return animations.map(animationtext => <h5 style={{color: 'red'}} key={animationtext}>{animationtext}</h5>)
+    }
+
     return (
         <div>
             <div data-tid="backButton">
@@ -24,9 +29,9 @@ const Image = (props) => {
                     <i className="fa fa-arrow-left fa-3x" />
                 </Link>
             </div>
-            <Setup job={job} setJob={setJob}  setAnimation={setAnimation} configuration={configuration}
+            <Setup job={job} setJob={setJob} animation={animation}  setAnimation={setAnimation} configuration={configuration}
             pathListing={pathListing} setPathListing={setPathListing} ></Setup>        
-            <Result job={job} animation={animation}></Result>
+            <Result job={job} animation={makeAnimations(animation)}></Result>
         </div>
     )
 }
