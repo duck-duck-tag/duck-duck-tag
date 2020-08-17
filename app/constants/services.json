@@ -14,10 +14,15 @@
             ,{ "name": "API_URL_QUERY", "displayName": "URL-query"    , "value": "/v3/classify?version=2018-03-19" }
             ,{ "name": "API_URL_BASE",  "displayName": "Base-url"     , "value": "https://api.eu-de.visual-recognition.watson.cloud.ibm.com/instances/" }
             ,{ "name": "API_KEY", "displayName": "API-Key", "value": "", "secret": true }
-           
        ]
-
-
+    },
+    {  "name": "AWS",
+        "options": [
+            {  "name": "API_ENDPOINT" , "displayName": "API-endpoint",   "value": "http://localhost:3001/tag/azure" }
+            ,{ "name": "ACCESS_KEY_ID", "displayName": "access key ID", "value": "" }
+            ,{ "name": "SECRET_ACCESS_KEY", "displayName": "secret access key", "value": "", "secret": true }
+            
+        ]
     }
 ] 
 

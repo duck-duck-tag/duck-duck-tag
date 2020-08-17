@@ -1,9 +1,15 @@
 
-import axios from 'axios'
 import { Path } from '../types'
 import getFile from './getFile'
 
 import getId from '../utils/getId'
+import getUrlAsBase64 from '../utils/getUrlAsBase64'
+import getSignatureKey from '../utils/getSignatureKey'
+import imageId from '../reducers/assignId'
+
+const crypto = require('crypto-js')
+const sha256 = require('crypto-js/sha256')
+const moment = require('moment')
 
 class ServiceConfiguration {
 
@@ -13,6 +19,8 @@ class ServiceConfiguration {
     API_ENDPOINT: string
     API_INSTANCE: string
     API_KEY: string
+    ACCESS_KEY_ID: string
+    SECRET_ACCESS_KEY: string
 
     imgPath: Path
 
@@ -167,6 +175,125 @@ class IBMconfig extends ServiceConfiguration {
 
 }
 
+class AWSconfig extends ServiceConfiguration {
+
+    constructor(configuration,path) {
+        super(configuration,path)
+    }
+
+    getHeaders = () => {
+
+        const requestPayload = JSON.stringify(this.getBody())
+
+        const date = moment.utc().format("YYYYMMDD")
+        const amzdate = moment.utc().format("YYYYMMDDTHHmmss") + 'Z'
+
+        const contenttype = 'application/x-amz-json-1.1'
+
+        const region = 'us-east-1'  // at some point switch to eu-west-1
+        const host = 'rekognition.' + region + '.amazonaws.com'
+        const credentialScope = date + '/' + region + '/rekognition/aws4_request'
+        
+        const signedHeaders = 'content-type;host;x-amz-date'
+        const algorithm = 'AWS4-HMAC-SHA256'
+
+        const canonicalRequest = 
+            'POST\n' +
+            '/\n' +
+            '\n' +
+            'content-type:' + contenttype + '\n' + 
+            'host:' + host + '\n' + 
+            'x-amz-date:' + amzdate + '\n\n' +
+            signedHeaders + '\n' + 
+            sha256(requestPayload).toString()
+
+        const string_to_sign = 
+            algorithm + '\n' +
+            amzdate + '\n' +
+            credentialScope + '\n' +
+            sha256(canonicalRequest).toString()
+
+        const signingKey = getSignatureKey(
+            this.SECRET_ACCESS_KEY,
+            date,
+            region,
+            "rekognition"
+        )
+
+        const signature = crypto.HmacSHA256(string_to_sign, signingKey).toString()
+
+        const auth = `${algorithm} Credential=` + this.ACCESS_KEY_ID + `/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`
+        
+        // console.log("authimme", auth)
+
+        return {
+            'Authorization': auth,
+            'Content-Type': contenttype,
+            'host': host,
+            'x-amz-date': amzdate,
+            'x-amz-target': 'RekognitionService.DetectLabels'
+        }
+
+    }
+
+    getBody = () => {
+
+        if (this.imgPath.type === 'localPath') {
+            const image = Buffer.from(getFile(this.imgPath.path), 'binary').toString('base64')
+
+            return {
+                Image: {
+                    Bytes: image
+                },
+                MinConfidence: 0.0
+            }
+        }
+
+        // getUrlAsBase64(this.imgPath.path).then(image => {
+
+        //     return {
+        //         Image: {
+        //             Bytes: image
+        //         },
+        //         MinConfidence: 0.0
+        //     }
+        // })
+
+    }
+
+
+    getParams = () => {
+        return {
+
+        }
+    }
+
+
+    getURL = () => {
+        return 'https://rekognition.us-east-1.amazonaws.com'
+    }
+
+    getHandleResponse = () => {
+
+        const manipulateTag = (tag) => {            
+            return {
+                path: this.imgPath.path,
+                type: this.imgPath.type,
+                service: this.name,
+                label: tag.Name.toLowerCase(),
+                accuracy: tag.Confidence/100,
+                id: getId(),
+                time: this.getTimestamp()
+            }
+        }
+        
+
+        return (response) => {
+            return response.data.Labels.map(manipulateTag)            
+        }
+    }
+}
+
 export const createQuery = (config,path) => {
 
     let query
@@ -177,6 +304,10 @@ export const createQuery = (config,path) => {
 
     if (config.name === 'IBM') {
         query = new IBMconfig( config, path )
+    }
+
+    if (config.name === 'AWS') {
+        query = new AWSconfig( config, path )
     }
 
     return query
