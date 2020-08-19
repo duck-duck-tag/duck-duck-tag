@@ -3,13 +3,13 @@
 import axios  from 'axios'
 
 
-
 const getUrlAsBase64 = (url: string) => {
-    return axios.get(url, {
-        responseType: 'arraybuffer'
-      })
-      .then(response =>  Buffer.from(response.data, 'binary').toString('base64'))
-  }
+  return axios.get(url, {
+    responseType: 'arraybuffer'
+  })
+  .then(response =>  Buffer.from(response.data, 'binary').toString('base64'))
+
+}     
 
 
 export default getUrlAsBase64

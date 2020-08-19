@@ -181,9 +181,11 @@ class AWSconfig extends ServiceConfiguration {
         super(configuration,path)
     }
 
-    getHeaders = () => {
+    getHeaders = async () => {
+        
+        const body = await this.getBody()
 
-        const requestPayload = JSON.stringify(this.getBody())
+        const requestPayload = JSON.stringify(body)
 
         const date = moment.utc().format("YYYYMMDD")
         const amzdate = moment.utc().format("YYYYMMDDTHHmmss") + 'Z'
@@ -223,8 +225,6 @@ class AWSconfig extends ServiceConfiguration {
         const signature = crypto.HmacSHA256(string_to_sign, signingKey).toString()
 
         const auth = `${algorithm} Credential=` + this.ACCESS_KEY_ID + `/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`
-        
-        // console.log("authimme", auth)
 
         return {
             'Authorization': auth,
@@ -235,29 +235,33 @@ class AWSconfig extends ServiceConfiguration {
         }
 
     }
+            
 
-    getBody = () => {
+    getBody = async () => {
+        let body = {
+            Image: {
+                Bytes: ''
+            },
+            MinConfidence: 0.0
+        }
 
         if (this.imgPath.type === 'localPath') {
             const image = Buffer.from(getFile(this.imgPath.path), 'binary').toString('base64')
 
-            return {
-                Image: {
-                    Bytes: image
-                },
-                MinConfidence: 0.0
-            }
+            body.Image.Bytes = image
+
+            return body
+
+        } else {
+            const promise = getUrlAsBase64(this.imgPath.path)
+            
+            const image = await promise
+            
+            body.Image.Bytes = image
+
+            return body
+            
         }
-
-        // getUrlAsBase64(this.imgPath.path).then(image => {
-
-        //     return {
-        //         Image: {
-        //             Bytes: image
-        //         },
-        //         MinConfidence: 0.0
-        //     }
-        // })
 
     }
 
@@ -271,8 +275,9 @@ class AWSconfig extends ServiceConfiguration {
 
     getURL = () => {
         return 'https://rekognition.us-east-1.amazonaws.com'
+        
     }
-
+    
     getHandleResponse = () => {
 
         const manipulateTag = (tag) => {            

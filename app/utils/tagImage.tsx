@@ -1,16 +1,14 @@
 import axios from 'axios'
 import ServiceConfiguration from './ServiceConfiguration'
-import { Path } from '../types'
 
-const tagImage = (serviceConfiguration: ServiceConfiguration) => {
+const tagImage = async (serviceConfiguration: ServiceConfiguration) => {
 
     const URL               = serviceConfiguration.getURL()
-    const headers           = serviceConfiguration.getHeaders()
+    const headers           = await serviceConfiguration.getHeaders()
     const handleResponse    = serviceConfiguration.getHandleResponse()
-    const body              = serviceConfiguration.getBody()
+    const body              = await serviceConfiguration.getBody()
     const params            = serviceConfiguration.getParams()
-
-
+    
     return axios.post(URL, body, { headers, params: params, paramsSerializer: (params) => {
                 
                 let result = '';
@@ -24,7 +22,7 @@ const tagImage = (serviceConfiguration: ServiceConfiguration) => {
         .catch(err => {
             console.log('Error tagging images:',err)
         })
-
 }
+
 
 export default tagImage
