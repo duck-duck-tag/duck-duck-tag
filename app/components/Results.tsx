@@ -23,6 +23,7 @@ const Results = ({ job }) => {
                     <th>Tag</th>
                     <th>Accuracy</th>
                     <th>Service</th>
+                    <th>Parents</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,6 +36,7 @@ const Results = ({ job }) => {
                                     <td>{tag.label}</td>
                                     <td> {Math.floor(tag.accuracy * 10000) / 100} %</td>
                                     <td> { tag.service }</td>
+                                    <td> { tag.parents.map(parent => parent + ', ') } </td>
                                 </tr>
                             )
                         })

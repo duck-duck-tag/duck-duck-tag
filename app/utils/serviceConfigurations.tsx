@@ -90,7 +90,8 @@ class AzureConfig extends ServiceConfiguration {
                 label: tag.name.toLowerCase(),
                 accuracy: tag.confidence,
                 id: getId(),
-                time: this.getTimestamp()
+                time: this.getTimestamp(),
+                parents: []
             }
         )
 
@@ -161,7 +162,8 @@ class IBMconfig extends ServiceConfiguration {
                 label: tag.class.toLowerCase(),
                 accuracy: tag.score,
                 id: getId(),
-                time: this.getTimestamp()
+                time: this.getTimestamp(),
+                parents: []
             }
         )
         
@@ -192,7 +194,7 @@ class AWSconfig extends ServiceConfiguration {
 
         const contenttype = 'application/x-amz-json-1.1'
 
-        const region = 'us-east-1'  // at some point switch to eu-west-1
+        const region = 'eu-central-1'
         const host = 'rekognition.' + region + '.amazonaws.com'
         const credentialScope = date + '/' + region + '/rekognition/aws4_request'
         
@@ -274,7 +276,7 @@ class AWSconfig extends ServiceConfiguration {
 
 
     getURL = () => {
-        return 'https://rekognition.us-east-1.amazonaws.com'
+        return 'https://rekognition.eu-central-1.amazonaws.com'
         
     }
     
@@ -288,7 +290,8 @@ class AWSconfig extends ServiceConfiguration {
                 label: tag.Name.toLowerCase(),
                 accuracy: tag.Confidence/100,
                 id: getId(),
-                time: this.getTimestamp()
+                time: this.getTimestamp(),
+                parents: tag.Parents.map(parent => parent.Name.toLowerCase())
             }
         }
         
