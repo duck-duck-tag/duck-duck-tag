@@ -389,7 +389,8 @@ class GoogleConfig extends ServiceConfiguration {
                 label: tag.description.toLowerCase(),
                 accuracy: tag.score,
                 id: getId(),
-                time: this.getTimestamp()
+                time: this.getTimestamp(),
+                parents: []
             }
         )
 
