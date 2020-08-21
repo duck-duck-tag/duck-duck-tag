@@ -21,6 +21,8 @@ class ServiceConfiguration {
     API_KEY: string
     ACCESS_KEY_ID: string
     SECRET_ACCESS_KEY: string
+    PRIVATE_KEY: string
+    CLIENT_EMAIL: string
 
     imgPath: Path
 
@@ -299,6 +301,102 @@ class AWSconfig extends ServiceConfiguration {
     }
 }
 
+class GoogleConfig extends ServiceConfiguration {
+
+    constructor(configuration, path) {
+        super(configuration, path)
+    }
+
+    getHeaders = () => {
+
+        const iat = Math.floor(Date.now() / 1000)
+        const exp = iat + 3600
+        const jwt = require('jsonwebtoken')
+
+        const payload = {
+            iss: this.CLIENT_EMAIL,
+            sub: this.CLIENT_EMAIL,
+            aud: 'https://vision.googleapis.com/',
+            iat: iat,
+            exp: exp
+        }
+
+        const parsedPrivateKey = '-----BEGIN PRIVATE KEY-----\n' + this.PRIVATE_KEY.replace(/\s+/g, '\n') + '\n-----END PRIVATE KEY-----'
+
+        const token = jwt.sign(
+            payload
+            , parsedPrivateKey
+            , { algorithm: 'RS256' }
+        )
+
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    }
+
+    getBody = () => {
+
+        const body = {
+            requests: [
+                {
+                    image: {
+                        source: {
+                            imageUri: this.imgPath.path
+                        }
+                    },
+                    features: [
+                        {
+                            type: "LABEL_DETECTION",
+                            maxResults: 2147483647
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+
+        if (this.imgPath.type === 'localPath') {
+
+            body.requests[0].image = { content: Buffer.from(getFile(this.imgPath.path), 'binary').toString('base64') }
+
+        }
+
+        return body
+
+
+    }
+
+    getParams = () => {
+    }
+
+
+    getURL = () => {
+        return this.API_ENDPOINT.concat(this.API_URL_QUERY);
+    }
+
+    getHandleResponse = () => {
+
+        const manipulateTag = (tag) => (
+            {
+                path: this.imgPath.path,
+                type: this.imgPath.type,
+                service: this.name,
+                label: tag.description.toLowerCase(),
+                accuracy: tag.score,
+                id: getId(),
+                time: this.getTimestamp()
+            }
+        )
+
+        return (response) => {
+            console.log('response', response)
+            return response.data.responses[0].labelAnnotations.map(manipulateTag)
+        }
+    }
+}
+
 export const createQuery = (config,path) => {
 
     let query
@@ -313,6 +411,10 @@ export const createQuery = (config,path) => {
 
     if (config.name === 'AWS') {
         query = new AWSconfig( config, path )
+    }
+
+    if (config.name === 'Google') {
+        query = new GoogleConfig(config, path)
     }
 
     return query

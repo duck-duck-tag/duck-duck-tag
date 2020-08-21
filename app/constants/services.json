@@ -23,8 +23,17 @@
             ,{ "name": "SECRET_ACCESS_KEY", "displayName": "secret access key", "value": "", "secret": true }
             
         ]
+    },
+    {  "name": "Google",
+        "options": [
+            {  "name": "API_ENDPOINT" , "displayName": "API Endpoint",   "value": "http://localhost:3001/tag/google" }
+            ,{ "name": "API_URL_QUERY", "displayName": "URL Query",  "value": "/v1/images:annotate" }
+            ,{ "name": "PRIVATE_KEY", "displayName": "Private Key", "value": "", "secret": true }
+            ,{ "name": "CLIENT_EMAIL", "displayName": "Client Email", "value": "", "secret": true }
+
+        ]
     }
-] 
+]
 
 
 
