@@ -338,15 +338,20 @@ class GoogleConfig extends ServiceConfiguration {
         }
     }
 
-    getBody = () => {
+    getBody = async () => {
+
+        let base64Img
+        if (this.imgPath.type === 'localPath') {
+            base64Img = await Buffer.from(getFile(this.imgPath.path), 'binary').toString('base64')
+        } else {
+            base64Img = await getUrlAsBase64(this.imgPath.path)
+        }
 
         const body = {
             requests: [
                 {
                     image: {
-                        source: {
-                            imageUri: this.imgPath.path
-                        }
+                        content: base64Img
                     },
                     features: [
                         {
@@ -359,16 +364,7 @@ class GoogleConfig extends ServiceConfiguration {
             ]
         }
 
-
-        if (this.imgPath.type === 'localPath') {
-
-            body.requests[0].image = { content: Buffer.from(getFile(this.imgPath.path), 'binary').toString('base64') }
-
-        }
-
         return body
-
-
     }
 
     getParams = () => {
