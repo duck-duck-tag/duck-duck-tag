@@ -8,6 +8,9 @@ or \***\*Tools for automated image analysis\*\*** in social sciences shall hatch
 
 The application is being built on the specification and requirement provided by Matti Nelimarkka from the University of Helsinki. Here is a link to the client's blog post about the issue [in Finnish](https://rajapinta.co/2020/02/24/onko-maailma-erilainen-riippuen-siita-kenen-tekoaly-sita-katselee/)
 
+The work started on top of an existing [boilerplate](https://github.com/electron-react-boilerplate/electron-react-boilerplate), and a lot of the functionality was first built here. Later, we built our own boilerplate, moved the functionality to [another repository](https://github.com/duck-duck-tag/novelty-boilerplate) under this organization and continued the work there.
+
+
 ## Table of Contents
 
 - [Implementation](#implementation)
